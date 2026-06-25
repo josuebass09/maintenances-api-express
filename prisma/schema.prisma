@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum FuelType {
+  gasoline
+  diesel
+  electric
+  hybrid
+}
+
+enum TransmissionType {
+  manual
+  automatic
+}
+
+enum MaintenanceType {
+  engine
+  transmission
+  steer
+  coolant
+}
+
+model User {
+  id                 String        @id @default(uuid())
+  firstName          String
+  lastName           String
+  email              String        @unique
+  passwordHash       String
+  phone              String?
+  address            String?
+  emailEnabled       Boolean       @default(true)
+  daysBeforeReminder Int[]         @default([30, 7, 1, 0])
+  cars               Car[]
+  maintenances       Maintenance[]
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+}
+
+model Car {
+  id           String           @id @default(uuid())
+  vin          String
+  make         String
+  model        String
+  year         Int
+  color        String
+  licensePlate String           @unique
+  fuel         FuelType
+  transmission TransmissionType
+  odometer     Int
+  notes        String?
+  ownerId      String
+  owner        User             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  maintenances Maintenance[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+}
+
+model Maintenance {
+  id                 String          @id @default(uuid())
+  name               String
+  type               MaintenanceType
+  currentMaintenance DateTime
+  nextMaintenance    DateTime
+  product            String
+  odometer           Int
+  intervalMonths     Int             @default(6)
+  carId              String
+  car                Car             @relation(fields: [carId], references: [id], onDelete: Cascade)
+  ownerId            String
+  owner              User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+}
