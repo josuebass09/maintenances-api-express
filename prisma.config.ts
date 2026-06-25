@@ -9,6 +9,8 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    // Fallback allows `prisma generate` to run at build time without DATABASE_URL.
+    // At runtime, Railway injects the real DATABASE_URL via environment variables.
+    url: process.env["DATABASE_URL"] ?? "postgresql://build:build@localhost:5432/build",
   },
 });
